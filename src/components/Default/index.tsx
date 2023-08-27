@@ -127,11 +127,13 @@ const Content = observer(({ contentRef, stageRef, scale, scrollToCenter }: {
     <div ref={ contentRef } className={ styles.content }>
       <div className={ styles['stage-area'] }
            style={ { width: width * scale, height: height * scale } }>
-        <Stage ref={ stageRef } className={ styles.stage } width={ width } height={ height }
+        <Stage ref={ stageRef } className={ styles.stage }
+               width={ width } height={ height }
                style={ { transform: `scale(${ scale }) translate(-50%, -50%)` } }>
           <Layer>
             <FilterImage
-              image={ image } x={ x } y={ y }
+              image={ image }
+              crop={ { x, y, width, height } }
               adjust={ adjust } />
           </Layer>
         </Stage>
@@ -222,7 +224,7 @@ export default function Default() {
   
   useEffect(() => {
     window.addEventListener('wheel', handleWheel, { passive: false })
-    window.addEventListener('keydown', handleKeyDown, {passive: false})
+    window.addEventListener('keydown', handleKeyDown, { passive: false })
     return () => {
       window.removeEventListener('wheel', handleWheel)
       window.removeEventListener('keydown', handleKeyDown)
@@ -243,7 +245,7 @@ export default function Default() {
       ('0' + now.getSeconds()).slice(-2) + '_' +
       ('000' + now.getMilliseconds()).slice(-4) +
       '.png'
-      downloadURL(url, filename)
+    downloadURL(url, filename)
   }
   
   return (

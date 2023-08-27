@@ -39,6 +39,7 @@ export const defaultAdjust: AdjustProps = {
 
 class Store {
   imageSrc = ''
+  imageData = ''
   mode = ''
   history: Step[] = [{
     crop: { ...defaultCrop },
@@ -49,6 +50,7 @@ class Store {
   constructor() {
     makeObservable(this, {
       imageSrc: observable,
+      imageData: observable,
       mode: observable,
       history: observable,
       currentStepIndex: observable,

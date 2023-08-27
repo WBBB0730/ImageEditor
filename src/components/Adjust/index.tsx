@@ -222,7 +222,8 @@ const Content = observer(({ contentRef, stageRef, scale, adjust }: {
                style={ { transform: `scale(${ scale }) translate(-50%, -50%)` } }>
           <Layer>
             <FilterImage
-              image={ image } x={ x } y={ y }
+              image={ image }
+              crop={ store.currentStep.crop }
               adjust={ adjust } />
           </Layer>
         </Stage>

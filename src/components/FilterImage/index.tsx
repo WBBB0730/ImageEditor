@@ -1,19 +1,20 @@
-import { AdjustProps } from '@/store'
+import { AdjustProps, CropProps } from '@/store'
 import { memo, RefObject, useEffect, useRef } from 'react'
 import Konva from 'konva'
 import { Image } from 'react-konva'
 
-const FilterImage = memo(({ image, x, y, adjust }: {
+const FilterImage = memo(({ image, crop, adjust }: {
   image: CanvasImageSource | undefined,
-  x: number,
-  y: number,
+  crop: CropProps,
   adjust: AdjustProps
 }) => {
   const imageRef: RefObject<Konva.Image> = useRef(null)
+  const { x, y, width, height } = crop
   const { brightness, contrast, saturation, hue, blurRadius, noise } = adjust
   
+  const scale = 540 / height
+  
   useEffect(() => {
-    // console.log('Image Changed')
     if (!image || imageRef.current === null)
       return
     imageRef.current.cache()
@@ -22,7 +23,12 @@ const FilterImage = memo(({ image, x, y, adjust }: {
   return (
     <Image
       ref={ imageRef }
-      image={ image } x={ x } y={ y }
+      image={ image }
+      scale={ { x: scale, y: scale } }
+      crop={ {
+        x: x, y: y,
+        width: width, height: height,
+      } }
       filters={ [
         Konva.Filters.Brighten,
         Konva.Filters.Contrast,
