@@ -1,0 +1,56 @@
+@import "@/styles/themes";
+@import "@/styles/commons";
+
+.header {
+  position: relative;
+
+  &::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background: rgba(255, 255 ,255, 0.6);
+  }
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.upload > div {
+  border: 1px dashed $border-color;
+  border-radius: 8px;
+  background: $bg-color-white;
+  user-select: none;
+  transition: border-color 0.3s;
+
+  &:hover {
+    border-color: $hover-color;
+  }
+
+  p {
+    width: 600px;
+    display: flex;
+    justify-content: center;
+    color: $secondary-text-color;
+    letter-spacing: 0.5px;
+
+    &:not(:last-child) {
+      padding: 64px 0 32px 0;
+    }
+
+    &:last-child {
+      padding-bottom: 64px;
+    }
+  }
+
+  .icon {
+    font-size: 48px;
+  }
+}
+

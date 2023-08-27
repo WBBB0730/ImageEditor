@@ -1,0 +1,48 @@
+@import "./themes";
+
+.page {
+  width: 100vw;
+  height: 100vh;
+  background: $bg-color-grey;
+}
+
+.header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  width: 100vw;
+  height: 48px;
+  border-bottom: 0.5px solid $border-color;
+  background: $bg-color-white;
+}
+
+.desc {
+  font-size: 13px;
+  line-height: 1;
+}
+
+.button {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.button.disabled {
+  opacity: 0.4;
+}
+
+.icon {
+  color: $brand-color;
+  font-size: 24px;
+}
+
+.divider {
+  margin: 0 16px;
+  font-size: 24px;
+}
+
+.content {
+  width: 100vw;
+  height: calc(100vh - 48px);
+}

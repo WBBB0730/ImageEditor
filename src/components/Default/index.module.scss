@@ -1,0 +1,23 @@
+@import "@/styles/themes";
+@import "@/styles/commons";
+
+.content {
+  overflow: auto;
+  display: flex;
+}
+
+.stage-area {
+  position: relative;
+  display: inline-block;
+  flex-shrink: 0;
+  margin: auto;
+  overflow: hidden;
+}
+
+.stage {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  display: inline-block;
+  transform-origin: left top;
+}

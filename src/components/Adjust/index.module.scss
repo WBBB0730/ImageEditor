@@ -1,0 +1,37 @@
+@import "@/styles/themes";
+@import "@/styles/commons";
+
+.title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .button {
+    color: $brand-color !important;
+  }
+}
+
+.slider {
+  margin-bottom: 11px !important;
+}
+
+.content {
+  overflow: auto;
+  display: flex;
+}
+
+.stage-area {
+  position: relative;
+  display: inline-block;
+  flex-shrink: 0;
+  margin: auto;
+  overflow: hidden;
+}
+
+.stage {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  display: inline-block;
+  transform-origin: left top;
+}
