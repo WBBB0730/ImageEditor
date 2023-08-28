@@ -7,7 +7,7 @@ import Default from '@/components/Default'
 import Adjust from '@/components/Adjust'
 
 const Page = observer(() => {
-  if (!store.imageSrc)
+  if (!store.imageData)
     return <SelectImage />
   switch (store.mode) {
     case 'adjust':

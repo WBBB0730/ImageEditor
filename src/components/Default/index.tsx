@@ -1,18 +1,17 @@
 import styles from './index.module.scss'
-import { Button, Divider, Popconfirm, Popover } from 'antd'
+import { Button, Divider, message, Popconfirm, Popover } from 'antd'
 import { AdjustIcon, CropIcon, DiscardIcon, DownloadIcon, RedoIcon, SmileIcon, UndoIcon } from '@/assets/icons'
 import { ZoomInOutlined, ZoomOutOutlined } from '@ant-design/icons'
 import store from '@/store'
 import { Layer, Stage } from 'react-konva'
 import { observer } from 'mobx-react'
 import { RefObject, useCallback, useEffect, useRef, useState } from 'react'
-import downloadURL from '@/utils/downloadURL'
 import Konva from 'konva'
 import useImage from 'use-image'
 import FilterImage from '@/components/FilterImage'
 
 const SCALE_STEP = 0.1
-const MAX_SCALE = 4
+const MAX_SCALE = 10
 const MIN_SCALE = 0.1
 
 const Header = observer(({ scale, handleZoomIn, handleZoomOut, handleDownload }: {
@@ -99,23 +98,12 @@ const Header = observer(({ scale, handleZoomIn, handleZoomOut, handleDownload }:
   )
 })
 
-const Content = observer(({ contentRef, stageRef, scale, scrollToCenter }: {
+const Content = observer(({ contentRef, stageRef, scale }: {
   contentRef: RefObject<any>,
   stageRef: RefObject<any>,
   scale: number,
-  scrollToCenter: () => void
 }) => {
-  const [image] = useImage(store.imageSrc)
-  
-  useEffect(() => {
-    if (!image || store.currentStep !== null)
-      return
-    const { width, height } = image
-    store.init(width, height)
-    setTimeout(() => {
-      scrollToCenter()
-    }, 0)
-  }, [image, scrollToCenter])
+  const [image] = useImage(store.imageData)
   
   if (store.currentStep === null)
     return <div className={ styles.content } />
@@ -231,29 +219,11 @@ export default function Default() {
     }
   }, [handleWheel, handleKeyDown])
   
-  /** 保存 */
-  const handleDownload = () => {
-    if (stageRef.current === null)
-      return
-    const url = stageRef.current.toDataURL()
-    const now = new Date()
-    const filename = now.getFullYear() +
-      ('0' + (now.getMonth() + 1)).slice(-2) +
-      ('0' + now.getDate()).slice(-2) + '_' +
-      ('0' + now.getHours()).slice(-2) +
-      ('0' + now.getMinutes()).slice(-2) +
-      ('0' + now.getSeconds()).slice(-2) + '_' +
-      ('000' + now.getMilliseconds()).slice(-4) +
-      '.png'
-    downloadURL(url, filename)
-  }
-  
   return (
     <div className={ styles.page }>
       <Header scale={ scale }
               handleZoomIn={ handleZoomIn } handleZoomOut={ handleZoomOut } handleDownload={ handleDownload } />
-      <Content contentRef={ contentRef } stageRef={ stageRef } scale={ scale }
-               scrollToCenter={ scrollToCenter } />
+      <Content contentRef={ contentRef } stageRef={ stageRef } scale={ scale } />
     </div>
   )
 }
@@ -266,4 +236,20 @@ function handleAdjust() {
 /** 放弃 */
 function handleDiscard() {
   store.discard()
+}
+
+function handleDownload() {
+  message.open({
+    key: 0,
+    type: 'loading',
+    content: '正在生成图片',
+    duration: 0,
+  }).then()
+  store.download().then(() => {
+    message.open({
+      key: 0,
+      type: 'success',
+      content: '图片已添加到下载队列',
+    }).then()
+  })
 }

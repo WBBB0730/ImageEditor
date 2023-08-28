@@ -47,7 +47,7 @@ function Header() {
 
 export default function SelectImage() {
   const handleChange = useCallback(({ file }: { file: UploadFile }) => {
-    store.setImageSrc(URL.createObjectURL(file as any))
+    store.init(URL.createObjectURL(file as any))
   }, [])
 
   return (

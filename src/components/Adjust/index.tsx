@@ -22,7 +22,7 @@ import { isEqual } from 'lodash'
 import FilterImage from '@/components/FilterImage'
 
 const SCALE_STEP = 0.1
-const MAX_SCALE = 4
+const MAX_SCALE = 10
 const MIN_SCALE = 0.1
 
 const Header = observer(({ scale, adjust, handleZoomIn, handleZoomOut, handleReset, handleSet, handleApply }: {
@@ -210,7 +210,7 @@ const Content = observer(({ contentRef, stageRef, scale, adjust }: {
   
   // const [image] = useState(new window.Image())
   // image.src = store.imageSrc
-  const [image] = useImage(store.imageSrc)
+  const [image] = useImage(store.imageData)
   
   const { x, y, width, height } = store.currentStep.crop
   

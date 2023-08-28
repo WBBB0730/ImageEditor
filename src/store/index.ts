@@ -1,4 +1,11 @@
 import { action, computed, makeObservable, observable } from 'mobx'
+import Konva from 'konva'
+import downloadURL from '@/utils/downloadURL'
+
+export interface Origin {
+  src: string,
+  scale: number
+}
 
 export interface CropProps {
   x: number,
@@ -21,12 +28,9 @@ interface Step {
   adjust: AdjustProps,
 }
 
-const defaultCrop: CropProps = {
-  x: 0,
-  y: 0,
-  width: 0,
-  height: 0,
-}
+const defaultOrigin: Origin = { src: '', scale: 1 }
+
+const defaultCrop: CropProps = { x: 0, y: 0, width: 0, height: 0 }
 
 export const defaultAdjust: AdjustProps = {
   brightness: 0,
@@ -38,7 +42,7 @@ export const defaultAdjust: AdjustProps = {
 }
 
 class Store {
-  imageSrc = ''
+  origin = { src: '', scale: 1 }
   imageData = ''
   mode = ''
   history: Step[] = [{
@@ -49,7 +53,6 @@ class Store {
   
   constructor() {
     makeObservable(this, {
-      imageSrc: observable,
       imageData: observable,
       mode: observable,
       history: observable,
@@ -57,8 +60,8 @@ class Store {
       
       currentStep: computed,
       
-      setImageSrc: action,
       init: action,
+      handleInit: action,
       discard: action,
       setMode: action,
       undo: action,
@@ -71,27 +74,102 @@ class Store {
     return this.currentStepIndex !== -1 && this.history.length ? this.history[this.currentStepIndex] : null
   }
   
-  setImageSrc(imageSrc: string) {
-    this.imageSrc = imageSrc
+  init(src: string) {
+    const image = new Image()
+    image.src = src
+    image.onload = () => {
+      this.handleInit(image)
+    }
   }
   
-  init(width: number, height: number) {
+  handleInit(image: HTMLImageElement) {
+    const { src, width, height } = image
+    const scale = 540 / height
+    this.origin = { src, scale }
+    
+    const canvas = document.createElement('canvas')
+    canvas.width = width * scale
+    canvas.height = 540
+    const ctx = canvas.getContext('2d')
+    ctx!.drawImage(image, 0, 0, width * scale, 540)
+    store.imageData = canvas.toDataURL()
+    
     this.history = [{
-      crop: { x: 0, y: 0, width, height },
-      adjust: { brightness: 0, contrast: 0, saturation: 0, hue: 0, blurRadius: 0, noise: 0 },
+      crop: { x: 0, y: 0, width: width * scale, height: 540 },
+      adjust: { ...defaultAdjust },
     }]
     this.currentStepIndex = 0
   }
   
-  /** 重置为开始状态 */
+  /** 放弃编辑 */
   discard() {
-    this.imageSrc = ''
+    this.origin = { ...defaultOrigin }
+    this.imageData = ''
     this.mode = ''
     this.history = [{
       crop: { x: 0, y: 0, width: 0, height: 0 },
       adjust: { brightness: 0, contrast: 0, saturation: 0, hue: 0, blurRadius: 0, noise: 0 },
     }]
     this.currentStepIndex = -1
+  }
+  
+  download() {
+    return new Promise((resolve) => {
+      if (this.currentStep === null)
+        return Promise.reject()
+      
+      const { origin, currentStep } = this
+      
+      const { scale } = origin
+      
+      const container = document.createElement('div')
+      container.id = 'temp-container'
+      container.style.display = 'none'
+      document.body.appendChild(container)
+      
+      const stage = new Konva.Stage({
+        container: 'temp-container',
+        width: currentStep.crop.width / scale,
+        height: currentStep.crop.height / scale,
+      })
+      
+      const layer = new Konva.Layer()
+      
+      const img = new Image()
+      img.src = this.origin.src
+      
+      img.onload = () => {
+        const image = new Konva.Image({
+          image: img,
+          width: currentStep.crop.width / scale, height: currentStep.crop.height / scale,
+          crop: {
+            x: currentStep.crop.x / scale,
+            y: currentStep.crop.y / scale,
+            width: currentStep.crop.width / scale,
+            height: currentStep.crop.height / scale,
+          },
+          filters: [
+            Konva.Filters.Brighten,
+            Konva.Filters.Contrast,
+            Konva.Filters.HSV,
+            Konva.Filters.Blur,
+            Konva.Filters.Noise,
+          ],
+          ...this.currentStep!.adjust,
+        })
+        image.cache()
+        layer.add(image)
+        stage.add(layer)
+        
+        stage.toBlob().then((blob) => {
+          const url = URL.createObjectURL(blob as Blob)
+          downloadURL(url)
+          URL.revokeObjectURL(url)
+          document.body.removeChild(container)
+          resolve(null)
+        })
+      }
+    })
   }
   
   /** 切换模式 */

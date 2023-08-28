@@ -12,8 +12,6 @@ const FilterImage = memo(({ image, crop, adjust }: {
   const { x, y, width, height } = crop
   const { brightness, contrast, saturation, hue, blurRadius, noise } = adjust
   
-  const scale = 540 / height
-  
   useEffect(() => {
     if (!image || imageRef.current === null)
       return
@@ -24,7 +22,7 @@ const FilterImage = memo(({ image, crop, adjust }: {
     <Image
       ref={ imageRef }
       image={ image }
-      scale={ { x: scale, y: scale } }
+      width={ width } height={ height }
       crop={ {
         x: x, y: y,
         width: width, height: height,
@@ -34,8 +32,8 @@ const FilterImage = memo(({ image, crop, adjust }: {
         Konva.Filters.Contrast,
         Konva.Filters.HSV,
         Konva.Filters.Blur,
-        Konva.Filters.Noise]
-      }
+        Konva.Filters.Noise,
+      ] }
       brightness={ brightness }
       contrast={ contrast }
       saturation={ saturation }
